@@ -151,10 +151,10 @@ export default function ResponsiveDrawer(props: Props) {
               <TableRow
                 key={index}>
                 <TableCell>{index + 1}</TableCell>
-                <TableCell>{row.name}</TableCell>
-                <TableCell>{row.age}</TableCell>
-                <TableCell>{row.city}</TableCell>
-                <TableCell>{row.pinCode}</TableCell>
+                <TableCell>{row?.name ? row.name: <i>Name not in records</i>}</TableCell>
+                <TableCell>{row?.age ? row.age: <i>Age not recorded</i> }</TableCell>
+                <TableCell>{row?.city ? row?.city :<i>City not in records</i>}</TableCell>
+                <TableCell>{row?.pinCode? row.pinCode :<i>Pincode not in records</i>}</TableCell>
               </TableRow>
             ))}
           </TableBody>
