@@ -15,7 +15,7 @@ import ListItemText from '@mui/material/ListItemText';
 import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
 import * as React from 'react';
-import { DeleteButton, EditButton } from './customised';
+import { DangerButton, SuccessButton, WarningButton } from './customised';
 
 const drawerWidth = 240;
 
@@ -201,8 +201,8 @@ export default function ResponsiveDrawer(props: Props) {
                   <TableCell>{row?.city ? row?.city : <i>City not in records</i>}</TableCell>
                   <TableCell>{row?.pinCode ? row.pinCode : <i>Pincode not in records</i>}</TableCell>
                   <TableCell>
-                    <EditButton onClick={() => handleEditClick(row)} />
-                    <DeleteButton onClick={() => handleDeleteClick(row)} />
+                    <WarningButton onClick={() => handleEditClick(row)} label="Edit"/>
+                    <DangerButton onClick={() => handleDeleteClick(row)} label ="Delete" />
                   </TableCell>
                 </TableRow>
               ))}
@@ -210,20 +210,21 @@ export default function ResponsiveDrawer(props: Props) {
           </Table>
         </Box>
         <Box sx={{ mt: 2, display: 'flex', justifyContent: "flex-end" }}>
-          <Button
+          <DangerButton
             variant="outlined"
             disabled={currentPage === 1}
             onClick={() => setCurrentPage(currentPage - 1)}
+            label="Prev"
           >
             Previous
-          </Button>
-          <Button
+          </DangerButton>
+          <SuccessButton
             variant="outlined"
             disabled={endIndex >= tableData.length}
             onClick={() => setCurrentPage(currentPage + 1)}
-          >
-            Next
-          </Button>
+            label="Next"
+          />
+           
         </Box>
         {/* Edit Modal */}
         <Dialog open={editModalOpen} onClose={handleEditModalClose}>
