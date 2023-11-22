@@ -1,26 +1,37 @@
-import DeleteIcon from '@mui/icons-material/Delete';
-import EditIcon from '@mui/icons-material/Edit';
+
+import {
+  AppBar,
+  Box,
+  CssBaseline,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
+  Divider,
+  Drawer,
+  IconButton,
+  List,
+  ListItem,
+  ListItemButton,
+  ListItemIcon,
+  ListItemText,
+  Menu,
+  MenuItem,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableRow,
+  Toolbar,
+  Typography,
+} from '@mui/material';
+import React from 'react';
+import { Delete, Edit, MoreVert, Person } from '@mui/icons-material';
 import MenuIcon from '@mui/icons-material/Menu';
-import MoreVertIcon from '@mui/icons-material/MoreVert';
-import PersonIcon from '@mui/icons-material/Person';
-import { Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Menu, MenuItem, Table, TableBody, TableCell, TableHead, TableRow } from '@mui/material';
-import AppBar from '@mui/material/AppBar';
-import Box from '@mui/material/Box';
-import CssBaseline from '@mui/material/CssBaseline';
-import Divider from '@mui/material/Divider';
-import Drawer from '@mui/material/Drawer';
-import IconButton from '@mui/material/IconButton';
-import List from '@mui/material/List';
-import ListItem from '@mui/material/ListItem';
-import ListItemButton from '@mui/material/ListItemButton';
-import ListItemIcon from '@mui/material/ListItemIcon';
-import ListItemText from '@mui/material/ListItemText';
-import Toolbar from '@mui/material/Toolbar';
-import Typography from '@mui/material/Typography';
-import * as React from 'react';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import { CustomTableCell, CustomTextField, DangerButton, SuccessButton, WarningButton } from './customised';
-
-
 
 const drawerWidth = 240;
 
@@ -73,9 +84,11 @@ export default function ResponsiveDrawer(props) {
 
   const handleDeleteConfirm = () => {
     const updatedData = tableData.filter((row) => row !== selectedRow);
-    localStorage.setItem('tableData', JSON.stringify(updatedData));
-    setTableData(updatedData);
+    const updatedDataWithIds = updatedData.map((row, index) => ({ ...row, id: index + 1 }));
+    localStorage.setItem('tableData', JSON.stringify(updatedDataWithIds));
+    setTableData(updatedDataWithIds);
     setDeleteModalOpen(false);
+    toast.success("Deleted Successfully");
   };
 
   const handleEditSave = () => {
@@ -93,6 +106,7 @@ export default function ResponsiveDrawer(props) {
     localStorage.setItem('tableData', JSON.stringify(updatedData));
     setTableData(updatedData);
     setEditModalOpen(false);
+    toast.success("Successfully Edited the field")
   };
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
@@ -121,16 +135,15 @@ export default function ResponsiveDrawer(props) {
 
   const drawer = (
     <div>
-      
       <Toolbar sx={{ justifyContent: 'center' }}>
-        <img src="/logo.png" width={60}/>
+        <img src="/logo.png" width={60} />
       </Toolbar>
       <Divider />
       <List>
         <ListItem disablePadding sx={{ backgroundColor: "#E30047", color: "white" }}>
           <ListItemButton >
             <ListItemIcon>
-              <PersonIcon sx={{ color: "white" }} />
+              <Person sx={{ color: "white" }} />
             </ListItemIcon>
             <ListItemText primary="User Details" />
           </ListItemButton>
@@ -142,6 +155,9 @@ export default function ResponsiveDrawer(props) {
   return (
 
     <Box sx={{ display: 'flex' }}>
+      <ToastContainer
+        autoClose={2000}
+      />
       <CssBaseline />
       <AppBar
         position="fixed"
@@ -181,7 +197,7 @@ export default function ResponsiveDrawer(props) {
           sx={{
             display: { xs: 'block', sm: 'none' },
             '& .MuiDrawer-paper': { boxSizing: 'border-box', width: drawerWidth },
-          
+
           }}
         >
           {drawer}
@@ -191,7 +207,7 @@ export default function ResponsiveDrawer(props) {
           sx={{
             display: { xs: 'none', sm: 'block' },
             '& .MuiDrawer-paper': { boxSizing: 'border-box', width: drawerWidth },
-            
+
           }}
           open
         >
@@ -207,12 +223,12 @@ export default function ResponsiveDrawer(props) {
           <Table>
             <TableHead>
               <TableRow>
-               <CustomTableCell label="S.no"/>
-               <CustomTableCell label="Name"/>
-               <CustomTableCell label="Age"/>
-               <CustomTableCell label="City"/>
-               <CustomTableCell label="Pincode"/>
-               <CustomTableCell label="Action"/>
+                <CustomTableCell label="S.no" />
+                <CustomTableCell label="Name" />
+                <CustomTableCell label="Age" />
+                <CustomTableCell label="City" />
+                <CustomTableCell label="Pincode" />
+                <CustomTableCell label="Action" />
               </TableRow>
             </TableHead>
             <TableBody>
@@ -230,16 +246,16 @@ export default function ResponsiveDrawer(props) {
                       aria-haspopup="true"
                       onClick={(e) => handleClick(e, row)}
                     >
-                      <MoreVertIcon sx={{color:"grey"}}/>
+                      <MoreVert sx={{ color: "grey" }} />
                     </IconButton>
                     <Menu
-                       id={`vertical-menu-${index}`}
-                       anchorEl={anchorEl}
-                       open={Boolean(anchorEl) && selectedRow === row}
-                       onClose={handleClose}
+                      id={`vertical-menu-${index}`}
+                      anchorEl={anchorEl}
+                      open={Boolean(anchorEl) && selectedRow === row}
+                      onClose={handleClose}
                     >
-                      <MenuItem onClick={() => handleEditClick(row)} sx={{display:"flex", gap:"1rem"}}><EditIcon fontSize='small' sx={{color:"#e30047"}}/>Edit</MenuItem>
-                      <MenuItem onClick={() => handleDeleteClick(row)} sx={{display:"flex", gap:"1rem"}}><DeleteIcon fontSize='small' sx={{color:"#e30047"}}/>Delete</MenuItem>
+                      <MenuItem onClick={() => handleEditClick(row)} sx={{ display: "flex", gap: "1rem" }}><Edit fontSize='small' sx={{ color: "#e30047" }} />Edit</MenuItem>
+                      <MenuItem onClick={() => handleDeleteClick(row)} sx={{ display: "flex", gap: "1rem" }}><Delete fontSize='small' sx={{ color: "#e30047" }} />Delete</MenuItem>
                     </Menu>
                   </TableCell>
                 </TableRow>
