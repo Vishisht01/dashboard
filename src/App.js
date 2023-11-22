@@ -15,7 +15,7 @@ import ListItemText from '@mui/material/ListItemText';
 import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
 import * as React from 'react';
-import { DangerButton, SuccessButton, WarningButton } from './customised';
+import { CustomTextField, DangerButton, SuccessButton, WarningButton } from './customised';
 
 const drawerWidth = 240;
 
@@ -36,6 +36,9 @@ export default function ResponsiveDrawer(props: Props) {
   const [editPincode, setEditPincode] = React.useState('');
   const [currentPage, setCurrentPage] = React.useState(1);
   const itemsPerPage = 5;
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const currentPageData = tableData.slice(startIndex, endIndex);
   const handleEditClick = (row) => {
     setSelectedRow(row);
     setEditName(row.name || '');
@@ -81,22 +84,31 @@ export default function ResponsiveDrawer(props: Props) {
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
   };
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const endIndex = startIndex + itemsPerPage;
-  const currentPageData = tableData.slice(startIndex, endIndex);
+  
   React.useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch('https://assets.alippo.com/catalog/static/data.json');
-        const result = await response.json();
-        setTableData(result);
-        console.log("result--->>>>>>>>>>>>.", result);
+        const localStorageData = localStorage.getItem('tableData');
+        if (localStorageData) {
+          const parsedData = JSON.parse(localStorageData);
+          setTableData(parsedData);
+          console.log("Data loaded from local storage:", parsedData);
+        } else {
+          const response = await fetch('https://assets.alippo.com/catalog/static/data.json');
+          const result = await response.json();
+          const dataWithIds = result.map((item, index) => ({ ...item, id: index + 1 }));
+          localStorage.setItem('tableData', JSON.stringify(dataWithIds));
+          setTableData(dataWithIds);
+          console.log("Data fetched from API and saved to local storage:", dataWithIds);
+        }
       } catch (e) {
         console.log(e);
       }
     };
+  
     fetchData();
   }, []);
+  
   const drawer = (
     <div>
       <Toolbar sx={{ justifyContent: 'center' }}>
@@ -106,12 +118,12 @@ export default function ResponsiveDrawer(props: Props) {
       </Toolbar>
       <Divider />
       <List>
-        <ListItem disablePadding>
-          <ListItemButton>
+        <ListItem disablePadding sx={{backgroundColor:"#E30047",color:"white"}}>
+          <ListItemButton >
             <ListItemIcon>
-              <PersonIcon />
+              <PersonIcon  sx={{color:"white"}}/>
             </ListItemIcon>
-            <ListItemText primary="User Details" />
+            <ListItemText primary="User Details"/>
           </ListItemButton>
         </ListItem>
       </List>
@@ -128,7 +140,7 @@ export default function ResponsiveDrawer(props: Props) {
           ml: { sm: `${drawerWidth}px` },
         }}
       >
-        <Toolbar>
+        <Toolbar sx={{backgroundColor:"#e30047"}}>
           <IconButton
             color="inherit"
             aria-label="open drawer"
@@ -195,7 +207,7 @@ export default function ResponsiveDrawer(props: Props) {
               {currentPageData.map((row, index) => (
                 <TableRow
                   key={index}>
-                  <TableCell>{index + 1}</TableCell>
+                  <TableCell>{row?.id}</TableCell>
                   <TableCell>{row?.name ? row.name : <i>Name not in records</i>}</TableCell>
                   <TableCell>{row?.age ? row.age : <i>Age not recorded</i>}</TableCell>
                   <TableCell>{row?.city ? row?.city : <i>City not in records</i>}</TableCell>
@@ -210,14 +222,13 @@ export default function ResponsiveDrawer(props: Props) {
           </Table>
         </Box>
         <Box sx={{ mt: 2, display: 'flex', justifyContent: "flex-end" }}>
-          <DangerButton
+          <WarningButton
             variant="outlined"
             disabled={currentPage === 1}
             onClick={() => setCurrentPage(currentPage - 1)}
             label="Prev"
-          >
-            Previous
-          </DangerButton>
+          />
+            
           <SuccessButton
             variant="outlined"
             disabled={endIndex >= tableData.length}
@@ -230,34 +241,30 @@ export default function ResponsiveDrawer(props: Props) {
         <Dialog open={editModalOpen} onClose={handleEditModalClose}>
           <DialogTitle>Edit {selectedRow?.name}</DialogTitle>
           <DialogContent>
-            <TextField
+            <CustomTextField
               label="Name"
               value={editName}
               onChange={(e) => setEditName(e.target.value)}
-              fullWidth
             />
-            <TextField
+            <CustomTextField
               label="Age"
               value={editAge}
               onChange={(e) => setEditAge(e.target.value)}
-              fullWidth
             />
-            <TextField
+            <CustomTextField
               label="City"
               value={editCity}
               onChange={(e) => setEditCity(e.target.value)}
-              fullWidth
             />
-            <TextField
+            <CustomTextField
               label="Pincode"
               value={editPincode}
               onChange={(e) => setEditPincode(e.target.value)}
-              fullWidth
             />
           </DialogContent>
           <DialogActions>
-            <Button onClick={handleEditModalClose}>Cancel</Button>
-            <Button onClick={handleEditSave}>Save</Button>
+            <WarningButton onClick={handleEditModalClose} label="Cancel"/>
+            <SuccessButton onClick={handleEditSave} label="Save"/>
           </DialogActions>
         </Dialog>
         {/* Delete Modal */}
@@ -269,10 +276,9 @@ export default function ResponsiveDrawer(props: Props) {
             </DialogContentText>
           </DialogContent>
           <DialogActions>
-            <Button onClick={handleDeleteModalClose}>Cancel</Button>
-            <Button onClick={handleDeleteConfirm} color="error">
-              Delete
-            </Button>
+            <WarningButton onClick={handleDeleteModalClose} label="Cancel"/>
+            <DangerButton onClick={handleDeleteConfirm} label="Delete"/>
+            
           </DialogActions>
         </Dialog>
       </Box>
