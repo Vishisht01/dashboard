@@ -1,6 +1,9 @@
 import MenuIcon from '@mui/icons-material/Menu';
 import PersonIcon from '@mui/icons-material/Person';
-import { Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Table, TableBody, TableCell, TableHead, TableRow, TextField } from '@mui/material';
+import MoreVertIcon from '@mui/icons-material/MoreVert';
+import DeleteIcon from '@mui/icons-material/Delete';
+import EditIcon from '@mui/icons-material/Edit';
+import {Menu,MenuItem, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Table, TableBody, TableCell, TableHead, TableRow, TextField } from '@mui/material';
 import AppBar from '@mui/material/AppBar';
 import Box from '@mui/material/Box';
 import CssBaseline from '@mui/material/CssBaseline';
@@ -35,10 +38,21 @@ export default function ResponsiveDrawer(props: Props) {
   const [editCity, setEditCity] = React.useState('');
   const [editPincode, setEditPincode] = React.useState('');
   const [currentPage, setCurrentPage] = React.useState(1);
+  const [anchorEl, setAnchorEl] = React.useState(null);
   const itemsPerPage = 5;
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = startIndex + itemsPerPage;
   const currentPageData = tableData.slice(startIndex, endIndex);
+
+  
+  const handleClick = (event, row) => {
+    setAnchorEl(event.currentTarget);
+    setSelectedRow(row);
+  };
+
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
   const handleEditClick = (row) => {
     setSelectedRow(row);
     setEditName(row.name || '');
@@ -67,17 +81,17 @@ export default function ResponsiveDrawer(props: Props) {
     setTableData(updatedData);
     setDeleteModalOpen(false);
   };
-  
+
   const handleEditSave = () => {
     const updatedData = tableData.map((row) =>
       row === selectedRow
         ? {
-            ...row,
-            name: editName,
-            age: editAge,
-            city: editCity,
-            pinCode: editPincode,
-          }
+          ...row,
+          name: editName,
+          age: editAge,
+          city: editCity,
+          pinCode: editPincode,
+        }
         : row
     );
     localStorage.setItem('tableData', JSON.stringify(updatedData));
@@ -87,7 +101,7 @@ export default function ResponsiveDrawer(props: Props) {
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
   };
-  
+
   React.useEffect(() => {
     const fetchData = async () => {
       try {
@@ -95,7 +109,7 @@ export default function ResponsiveDrawer(props: Props) {
         if (localStorageData) {
           const parsedData = JSON.parse(localStorageData);
           setTableData(parsedData);
-          console.log("Data loaded from local storage====>>", parsedData);
+          console.log("local storage data====>>", parsedData);
         } else {
           const response = await fetch('https://assets.alippo.com/catalog/static/data.json');
           const result = await response.json();
@@ -107,10 +121,10 @@ export default function ResponsiveDrawer(props: Props) {
       } catch (e) {
         console.log(e);
       }
-    }; 
+    };
     fetchData();
   }, []);
-  
+
   const drawer = (
     <div>
       <Toolbar sx={{ justifyContent: 'center' }}>
@@ -120,12 +134,12 @@ export default function ResponsiveDrawer(props: Props) {
       </Toolbar>
       <Divider />
       <List>
-        <ListItem disablePadding sx={{backgroundColor:"#E30047",color:"white"}}>
+        <ListItem disablePadding sx={{ backgroundColor: "#E30047", color: "white" }}>
           <ListItemButton >
             <ListItemIcon>
-              <PersonIcon  sx={{color:"white"}}/>
+              <PersonIcon sx={{ color: "white" }} />
             </ListItemIcon>
-            <ListItemText primary="User Details"/>
+            <ListItemText primary="User Details" />
           </ListItemButton>
         </ListItem>
       </List>
@@ -142,7 +156,7 @@ export default function ResponsiveDrawer(props: Props) {
           ml: { sm: `${drawerWidth}px` },
         }}
       >
-        <Toolbar sx={{backgroundColor:"#e30047"}}>
+        <Toolbar sx={{ backgroundColor: "#e30047" }}>
           <IconButton
             color="inherit"
             aria-label="open drawer"
@@ -193,11 +207,11 @@ export default function ResponsiveDrawer(props: Props) {
         sx={{ flexGrow: 1, p: 3, width: { sm: `calc(100% - ${drawerWidth}px)` } }}
       >
         <Toolbar />
-        <Box sx={{ border: 1, borderColor: 'divider', borderRadius: 2, p: 2 }}>
+        <Box sx={{ border: 1, borderColor: 'divider', borderRadius: 2, p: 5, boxShadow: "rgba(60, 64, 67, 0.3) 0px 1px 2px 0px, rgba(60, 64, 67, 0.15) 0px 1px 3px 1px;" }}>
           <Table>
             <TableHead>
               <TableRow>
-                <TableCell>S.no</TableCell>
+                <TableCell sx={{color:"red"}}>S.no</TableCell>
                 <TableCell>Name</TableCell>
                 <TableCell>Age</TableCell>
                 <TableCell>City</TableCell>
@@ -215,8 +229,22 @@ export default function ResponsiveDrawer(props: Props) {
                   <TableCell>{row?.city ? row?.city : <i>City not in records</i>}</TableCell>
                   <TableCell>{row?.pinCode ? row.pinCode : <i>Pincode not in records</i>}</TableCell>
                   <TableCell>
-                    <WarningButton onClick={() => handleEditClick(row)} label="Edit"/>
-                    <DangerButton onClick={() => handleDeleteClick(row)} label ="Delete" />
+                    <IconButton
+                      aria-controls="vertical-menu"
+                      aria-haspopup="true"
+                      onClick={(e) => handleClick(e, row)}
+                    >
+                      <MoreVertIcon sx={{color:"#e30047"}}/>
+                    </IconButton>
+                    <Menu
+                       id={`vertical-menu-${index}`}
+                       anchorEl={anchorEl}
+                       open={Boolean(anchorEl) && selectedRow === row}
+                       onClose={handleClose}
+                    >
+                      <MenuItem onClick={() => handleEditClick(row)}><EditIcon fontSize='small'/>Edit</MenuItem>
+                      <MenuItem onClick={() => handleDeleteClick(row)}><DeleteIcon fontSize='small'/>Delete</MenuItem>
+                    </Menu>
                   </TableCell>
                 </TableRow>
               ))}
@@ -230,14 +258,14 @@ export default function ResponsiveDrawer(props: Props) {
             onClick={() => setCurrentPage(currentPage - 1)}
             label="Prev"
           />
-            
+
           <SuccessButton
             variant="outlined"
             disabled={endIndex >= tableData.length}
             onClick={() => setCurrentPage(currentPage + 1)}
             label="Next"
           />
-           
+
         </Box>
         {/* Edit Modal */}
         <Dialog open={editModalOpen} onClose={handleEditModalClose}>
@@ -265,8 +293,8 @@ export default function ResponsiveDrawer(props: Props) {
             />
           </DialogContent>
           <DialogActions>
-            <WarningButton onClick={handleEditModalClose} label="Cancel"/>
-            <SuccessButton onClick={handleEditSave} label="Save"/>
+            <WarningButton onClick={handleEditModalClose} label="Cancel" />
+            <SuccessButton onClick={handleEditSave} label="Save" />
           </DialogActions>
         </Dialog>
         {/* Delete Modal */}
@@ -278,8 +306,8 @@ export default function ResponsiveDrawer(props: Props) {
             </DialogContentText>
           </DialogContent>
           <DialogActions>
-            <WarningButton onClick={handleDeleteModalClose} label="Cancel"/>
-            <DangerButton onClick={handleDeleteConfirm} label="Delete"/>
+            <WarningButton onClick={handleDeleteModalClose} label="Cancel" />
+            <DangerButton onClick={handleDeleteConfirm} label="Delete" />
           </DialogActions>
         </Dialog>
       </Box>
