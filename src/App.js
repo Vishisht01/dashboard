@@ -62,23 +62,26 @@ export default function ResponsiveDrawer(props: Props) {
   };
 
   const handleDeleteConfirm = () => {
-    setTableData((prevData) => prevData.filter((row) => row !== selectedRow));
+    const updatedData = tableData.filter((row) => row !== selectedRow);
+    localStorage.setItem('tableData', JSON.stringify(updatedData));
+    setTableData(updatedData);
     setDeleteModalOpen(false);
   };
+  
   const handleEditSave = () => {
-    setTableData((prevData) =>
-      prevData.map((row) =>
-        row === selectedRow
-          ? {
+    const updatedData = tableData.map((row) =>
+      row === selectedRow
+        ? {
             ...row,
             name: editName,
             age: editAge,
             city: editCity,
             pinCode: editPincode,
           }
-          : row
-      )
+        : row
     );
+    localStorage.setItem('tableData', JSON.stringify(updatedData));
+    setTableData(updatedData);
     setEditModalOpen(false);
   };
   const handleDrawerToggle = () => {
@@ -92,20 +95,19 @@ export default function ResponsiveDrawer(props: Props) {
         if (localStorageData) {
           const parsedData = JSON.parse(localStorageData);
           setTableData(parsedData);
-          console.log("Data loaded from local storage:", parsedData);
+          console.log("Data loaded from local storage====>>", parsedData);
         } else {
           const response = await fetch('https://assets.alippo.com/catalog/static/data.json');
           const result = await response.json();
           const dataWithIds = result.map((item, index) => ({ ...item, id: index + 1 }));
           localStorage.setItem('tableData', JSON.stringify(dataWithIds));
           setTableData(dataWithIds);
-          console.log("Data fetched from API and saved to local storage:", dataWithIds);
+          console.log("dataWithIds====>>", dataWithIds);
         }
       } catch (e) {
         console.log(e);
       }
-    };
-  
+    }; 
     fetchData();
   }, []);
   
@@ -278,7 +280,6 @@ export default function ResponsiveDrawer(props: Props) {
           <DialogActions>
             <WarningButton onClick={handleDeleteModalClose} label="Cancel"/>
             <DangerButton onClick={handleDeleteConfirm} label="Delete"/>
-            
           </DialogActions>
         </Dialog>
       </Box>
