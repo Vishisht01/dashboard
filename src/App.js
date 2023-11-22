@@ -1,9 +1,9 @@
-import MenuIcon from '@mui/icons-material/Menu';
-import PersonIcon from '@mui/icons-material/Person';
-import MoreVertIcon from '@mui/icons-material/MoreVert';
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
-import {Menu,MenuItem, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Table, TableBody, TableCell, TableHead, TableRow, TextField } from '@mui/material';
+import MenuIcon from '@mui/icons-material/Menu';
+import MoreVertIcon from '@mui/icons-material/MoreVert';
+import PersonIcon from '@mui/icons-material/Person';
+import { Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Menu, MenuItem, Table, TableBody, TableCell, TableHead, TableRow } from '@mui/material';
 import AppBar from '@mui/material/AppBar';
 import Box from '@mui/material/Box';
 import CssBaseline from '@mui/material/CssBaseline';
@@ -18,15 +18,13 @@ import ListItemText from '@mui/material/ListItemText';
 import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
 import * as React from 'react';
-import { CustomTextField, DangerButton, SuccessButton, WarningButton } from './customised';
+import { CustomTableCell, CustomTextField, DangerButton, SuccessButton, WarningButton } from './customised';
+
+
 
 const drawerWidth = 240;
 
-interface Props {
-  window?: () => Window;
-}
-
-export default function ResponsiveDrawer(props: Props) {
+export default function ResponsiveDrawer(props) {
   const { window } = props;
   const [mobileOpen, setMobileOpen] = React.useState(false);
   const [tableData, setTableData] = React.useState([]);
@@ -43,8 +41,6 @@ export default function ResponsiveDrawer(props: Props) {
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = startIndex + itemsPerPage;
   const currentPageData = tableData.slice(startIndex, endIndex);
-
-  
   const handleClick = (event, row) => {
     setAnchorEl(event.currentTarget);
     setSelectedRow(row);
@@ -109,14 +105,12 @@ export default function ResponsiveDrawer(props: Props) {
         if (localStorageData) {
           const parsedData = JSON.parse(localStorageData);
           setTableData(parsedData);
-          console.log("local storage data====>>", parsedData);
         } else {
           const response = await fetch('https://assets.alippo.com/catalog/static/data.json');
           const result = await response.json();
           const dataWithIds = result.map((item, index) => ({ ...item, id: index + 1 }));
           localStorage.setItem('tableData', JSON.stringify(dataWithIds));
           setTableData(dataWithIds);
-          console.log("dataWithIds====>>", dataWithIds);
         }
       } catch (e) {
         console.log(e);
@@ -127,10 +121,9 @@ export default function ResponsiveDrawer(props: Props) {
 
   const drawer = (
     <div>
+      
       <Toolbar sx={{ justifyContent: 'center' }}>
-        <Typography variant="h6">
-          Alippo Admin
-        </Typography>
+        <img src="/logo.png" width={60}/>
       </Toolbar>
       <Divider />
       <List>
@@ -147,6 +140,7 @@ export default function ResponsiveDrawer(props: Props) {
   );
   const container = window !== undefined ? () => window().document.body : undefined;
   return (
+
     <Box sx={{ display: 'flex' }}>
       <CssBaseline />
       <AppBar
@@ -187,6 +181,7 @@ export default function ResponsiveDrawer(props: Props) {
           sx={{
             display: { xs: 'block', sm: 'none' },
             '& .MuiDrawer-paper': { boxSizing: 'border-box', width: drawerWidth },
+          
           }}
         >
           {drawer}
@@ -196,6 +191,7 @@ export default function ResponsiveDrawer(props: Props) {
           sx={{
             display: { xs: 'none', sm: 'block' },
             '& .MuiDrawer-paper': { boxSizing: 'border-box', width: drawerWidth },
+            
           }}
           open
         >
@@ -211,12 +207,12 @@ export default function ResponsiveDrawer(props: Props) {
           <Table>
             <TableHead>
               <TableRow>
-                <TableCell sx={{color:"red"}}>S.no</TableCell>
-                <TableCell>Name</TableCell>
-                <TableCell>Age</TableCell>
-                <TableCell>City</TableCell>
-                <TableCell>Pincode</TableCell>
-                <TableCell>Action</TableCell>
+               <CustomTableCell label="S.no"/>
+               <CustomTableCell label="Name"/>
+               <CustomTableCell label="Age"/>
+               <CustomTableCell label="City"/>
+               <CustomTableCell label="Pincode"/>
+               <CustomTableCell label="Action"/>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -234,7 +230,7 @@ export default function ResponsiveDrawer(props: Props) {
                       aria-haspopup="true"
                       onClick={(e) => handleClick(e, row)}
                     >
-                      <MoreVertIcon sx={{color:"#e30047"}}/>
+                      <MoreVertIcon sx={{color:"grey"}}/>
                     </IconButton>
                     <Menu
                        id={`vertical-menu-${index}`}
@@ -242,8 +238,8 @@ export default function ResponsiveDrawer(props: Props) {
                        open={Boolean(anchorEl) && selectedRow === row}
                        onClose={handleClose}
                     >
-                      <MenuItem onClick={() => handleEditClick(row)}><EditIcon fontSize='small'/>Edit</MenuItem>
-                      <MenuItem onClick={() => handleDeleteClick(row)}><DeleteIcon fontSize='small'/>Delete</MenuItem>
+                      <MenuItem onClick={() => handleEditClick(row)} sx={{display:"flex", gap:"1rem"}}><EditIcon fontSize='small' sx={{color:"#e30047"}}/>Edit</MenuItem>
+                      <MenuItem onClick={() => handleDeleteClick(row)} sx={{display:"flex", gap:"1rem"}}><DeleteIcon fontSize='small' sx={{color:"#e30047"}}/>Delete</MenuItem>
                     </Menu>
                   </TableCell>
                 </TableRow>

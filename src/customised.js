@@ -1,8 +1,8 @@
 import React from 'react';
 import Button from '@mui/material/Button';
-import { TextField } from '@mui/material';
+import { TableCell, TextField } from '@mui/material';
 
-export const WarningButton = ({ onClick,label }) => {
+export const WarningButton = ({ onClick,label, disabled }) => {
   return (
     <Button variant='contained'sx={{
         backgroundColor: '#24a0ed',
@@ -12,7 +12,9 @@ export const WarningButton = ({ onClick,label }) => {
           backgroundColor: '#24a0ed',
         },
       }}
-       onClick={onClick}>
+       onClick={onClick}
+       disabled={disabled}
+       >
       {label}
     </Button>
   );
@@ -66,5 +68,10 @@ export const SuccessButton = ({ onClick, label,disabled }) => {
         fullWidth
         sx={{ marginTop: "2rem" }}
       />
+    );
+  };
+ export const CustomTableCell = ({ label }) => {
+    return (
+        <TableCell sx={{color:"Black"}}>{label}</TableCell>
     );
   };
