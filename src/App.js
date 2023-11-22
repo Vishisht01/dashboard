@@ -1,21 +1,21 @@
-import * as React from 'react';
+import MenuIcon from '@mui/icons-material/Menu';
+import PersonIcon from '@mui/icons-material/Person';
+import { Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Table, TableBody, TableCell, TableHead, TableRow, TextField } from '@mui/material';
 import AppBar from '@mui/material/AppBar';
 import Box from '@mui/material/Box';
 import CssBaseline from '@mui/material/CssBaseline';
 import Divider from '@mui/material/Divider';
 import Drawer from '@mui/material/Drawer';
 import IconButton from '@mui/material/IconButton';
-import InboxIcon from '@mui/icons-material/MoveToInbox';
 import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
 import ListItemButton from '@mui/material/ListItemButton';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
-import MailIcon from '@mui/icons-material/Mail';
-import MenuIcon from '@mui/icons-material/Menu';
 import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
-import { Table, TableBody, TableCell, TableHead, TableRow } from '@mui/material';
+import * as React from 'react';
+import { DeleteButton, EditButton } from './customised';
 
 const drawerWidth = 240;
 
@@ -26,51 +26,94 @@ interface Props {
 export default function ResponsiveDrawer(props: Props) {
   const { window } = props;
   const [mobileOpen, setMobileOpen] = React.useState(false);
-  const [tableData, setTableData]=React.useState([])
+  const [tableData, setTableData] = React.useState([]);
+  const [selectedRow, setSelectedRow] = React.useState(null);
+  const [editModalOpen, setEditModalOpen] = React.useState(false);
+  const [deleteModalOpen, setDeleteModalOpen] = React.useState(false);
+  const [editName, setEditName] = React.useState('');
+  const [editAge, setEditAge] = React.useState('');
+  const [editCity, setEditCity] = React.useState('');
+  const [editPincode, setEditPincode] = React.useState('');
+  const [currentPage, setCurrentPage] = React.useState(1);
+  const itemsPerPage = 5;
+  const handleEditClick = (row) => {
+    setSelectedRow(row);
+    setEditName(row.name || '');
+    setEditAge(row.age || '');
+    setEditCity(row.city || '');
+    setEditPincode(row.pinCode || '');
+    setEditModalOpen(true);
+  };
+
+  const handleDeleteClick = (row) => {
+    setSelectedRow(row);
+    setDeleteModalOpen(true);
+  };
+
+  const handleEditModalClose = () => {
+    setEditModalOpen(false);
+  };
+
+  const handleDeleteModalClose = () => {
+    setDeleteModalOpen(false);
+  };
+
+  const handleDeleteConfirm = () => {
+    setTableData((prevData) => prevData.filter((row) => row !== selectedRow));
+    setDeleteModalOpen(false);
+  };
+  const handleEditSave = () => {
+    setTableData((prevData) =>
+      prevData.map((row) =>
+        row === selectedRow
+          ? {
+            ...row,
+            name: editName,
+            age: editAge,
+            city: editCity,
+            pinCode: editPincode,
+          }
+          : row
+      )
+    );
+    setEditModalOpen(false);
+  };
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
   };
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const currentPageData = tableData.slice(startIndex, endIndex);
   React.useEffect(() => {
     const fetchData = async () => {
       try {
         const response = await fetch('https://assets.alippo.com/catalog/static/data.json');
         const result = await response.json();
         setTableData(result);
-        console.log("result--->>>>>>>>>>>>.",result);
+        console.log("result--->>>>>>>>>>>>.", result);
       } catch (e) {
         console.log(e);
-      } 
+      }
     };
     fetchData();
   }, []);
   const drawer = (
     <div>
-      <Toolbar />
+      <Toolbar sx={{ justifyContent: 'center' }}>
+        <Typography variant="h6">
+          Alippo Admin
+        </Typography>
+      </Toolbar>
       <Divider />
       <List>
-        {['Inbox', 'Starred', 'Send email', 'Drafts'].map((text, index) => (
-          <ListItem key={text} disablePadding>
-            <ListItemButton>
-              <ListItemIcon>
-                {index % 2 === 0 ? <InboxIcon /> : <MailIcon />}
-              </ListItemIcon>
-              <ListItemText primary={text} />
-            </ListItemButton>
-          </ListItem>
-        ))}
-      </List>
-      <Divider />
-      <List>
-        {['All mail', 'Trash', 'Spam'].map((text, index) => (
-          <ListItem key={text} disablePadding>
-            <ListItemButton>
-              <ListItemIcon>
-                {index % 2 === 0 ? <InboxIcon /> : <MailIcon />}
-              </ListItemIcon>
-              <ListItemText primary={text} />
-            </ListItemButton>
-          </ListItem>
-        ))}
+        <ListItem disablePadding>
+          <ListItemButton>
+            <ListItemIcon>
+              <PersonIcon />
+            </ListItemIcon>
+            <ListItemText primary="User Details" />
+          </ListItemButton>
+        </ListItem>
       </List>
     </div>
   );
@@ -136,29 +179,101 @@ export default function ResponsiveDrawer(props: Props) {
         sx={{ flexGrow: 1, p: 3, width: { sm: `calc(100% - ${drawerWidth}px)` } }}
       >
         <Toolbar />
-        <Table>
-          <TableHead>
-            <TableRow>
-              <TableCell>S.no</TableCell>
-              <TableCell>Name</TableCell>
-              <TableCell>Age</TableCell>
-              <TableCell>City</TableCell>
-              <TableCell>Pincode</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {tableData.map((row,index) => (
-              <TableRow
-                key={index}>
-                <TableCell>{index + 1}</TableCell>
-                <TableCell>{row?.name ? row.name: <i>Name not in records</i>}</TableCell>
-                <TableCell>{row?.age ? row.age: <i>Age not recorded</i> }</TableCell>
-                <TableCell>{row?.city ? row?.city :<i>City not in records</i>}</TableCell>
-                <TableCell>{row?.pinCode? row.pinCode :<i>Pincode not in records</i>}</TableCell>
+        <Box sx={{ border: 1, borderColor: 'divider', borderRadius: 2, p: 2 }}>
+          <Table>
+            <TableHead>
+              <TableRow>
+                <TableCell>S.no</TableCell>
+                <TableCell>Name</TableCell>
+                <TableCell>Age</TableCell>
+                <TableCell>City</TableCell>
+                <TableCell>Pincode</TableCell>
+                <TableCell>Action</TableCell>
               </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+            </TableHead>
+            <TableBody>
+              {currentPageData.map((row, index) => (
+                <TableRow
+                  key={index}>
+                  <TableCell>{index + 1}</TableCell>
+                  <TableCell>{row?.name ? row.name : <i>Name not in records</i>}</TableCell>
+                  <TableCell>{row?.age ? row.age : <i>Age not recorded</i>}</TableCell>
+                  <TableCell>{row?.city ? row?.city : <i>City not in records</i>}</TableCell>
+                  <TableCell>{row?.pinCode ? row.pinCode : <i>Pincode not in records</i>}</TableCell>
+                  <TableCell>
+                    <EditButton onClick={() => handleEditClick(row)} />
+                    <DeleteButton onClick={() => handleDeleteClick(row)} />
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </Box>
+        <Box sx={{ mt: 2, display: 'flex', justifyContent: "flex-end" }}>
+          <Button
+            variant="outlined"
+            disabled={currentPage === 1}
+            onClick={() => setCurrentPage(currentPage - 1)}
+          >
+            Previous
+          </Button>
+          <Button
+            variant="outlined"
+            disabled={endIndex >= tableData.length}
+            onClick={() => setCurrentPage(currentPage + 1)}
+          >
+            Next
+          </Button>
+        </Box>
+        {/* Edit Modal */}
+        <Dialog open={editModalOpen} onClose={handleEditModalClose}>
+          <DialogTitle>Edit {selectedRow?.name}</DialogTitle>
+          <DialogContent>
+            <TextField
+              label="Name"
+              value={editName}
+              onChange={(e) => setEditName(e.target.value)}
+              fullWidth
+            />
+            <TextField
+              label="Age"
+              value={editAge}
+              onChange={(e) => setEditAge(e.target.value)}
+              fullWidth
+            />
+            <TextField
+              label="City"
+              value={editCity}
+              onChange={(e) => setEditCity(e.target.value)}
+              fullWidth
+            />
+            <TextField
+              label="Pincode"
+              value={editPincode}
+              onChange={(e) => setEditPincode(e.target.value)}
+              fullWidth
+            />
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={handleEditModalClose}>Cancel</Button>
+            <Button onClick={handleEditSave}>Save</Button>
+          </DialogActions>
+        </Dialog>
+        {/* Delete Modal */}
+        <Dialog open={deleteModalOpen} onClose={handleDeleteModalClose}>
+          <DialogTitle>Delete Row</DialogTitle>
+          <DialogContent>
+            <DialogContentText>
+              Are you sure you want to delete the row for {selectedRow?.name}?
+            </DialogContentText>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={handleDeleteModalClose}>Cancel</Button>
+            <Button onClick={handleDeleteConfirm} color="error">
+              Delete
+            </Button>
+          </DialogActions>
+        </Dialog>
       </Box>
     </Box>
   );
